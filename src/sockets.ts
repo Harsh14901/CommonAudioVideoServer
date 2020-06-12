@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as socketio from 'socket.io';
+import { existsSync } from 'fs';
 // import * as lodash from 'lodash';
-import Track from './models/track';
+// import Track from './models/track';
 
 interface USER {
   id: string;
@@ -30,7 +31,7 @@ interface ROOM {
   userIds: string[];
   ownerId: string;
   state: STATE;
-  trackId: string;
+  audioPath: string;
   onlyHost: boolean;
 }
 
@@ -50,13 +51,9 @@ const validateId = (id: string) => {
   return typeof id === 'string' && id.length === 16;
 };
 
-const validateTrackId = async (id: string) => {
+const validateAudioPath = async (path: string) => {
   try {
-    const track = await Track.findById(id);
-    if (!track) {
-      return false;
-    }
-    return true;
+    return existsSync(path);
   } catch (error) {
     return false;
   }
@@ -90,28 +87,6 @@ const socket = (io: any) => {
     };
     socket.emit('userId', {userId: userId});
     console.log('User ' + userId + ' connected.');
-
-    // const sendMessage = (body: string, isSystemMessage: boolean) => {
-    //   const message: MESSAGE = {
-    //     body: body,
-    //     isSystemMessage: isSystemMessage,
-    //     timestamp: new Date(),
-    //     userId: userId,
-    //   };
-    // try {
-    //   rooms[users[userId].roomId].messages.push(message);
-    // } catch (error) {
-    //   console.log(error);
-    // }
-
-    // console.log('Sending message in room ' + users[userId].roomId + '.');
-    // io.sockets.in(users[userId].roomId).emit('sendMessage', {
-    //   body: message.body,
-    //   isSystemMessage: isSystemMessage,
-    //   timestamp: message.timestamp.getTime(),
-    //   userId: message.userId,
-    // });
-    // };
 
     const leaveRoom = () => {
       // sendMessage('left', true);
@@ -147,9 +122,9 @@ const socket = (io: any) => {
         return;
       }
 
-      if (!(await validateTrackId(data.trackId as string))) {
+      if (!(await validateAudioPath(data.audioPath as string))) {
         console.log(
-          `User ${userId} attempted to create room with invalid trackId ${data.trackId}.`
+          `User ${userId} attempted to create room with invalid audioPath ${data.audioPath}.`
         );
         return;
       }
@@ -177,7 +152,7 @@ const socket = (io: any) => {
         state: initial_state,
         userIds: [userId],
         ownerId: userId,
-        trackId: data.trackId as string,
+        audioPath: data.audioPath as string,
         onlyHost: data.onlyHost as boolean,
       };
       users[userId].roomId = roomId;
@@ -220,7 +195,7 @@ const socket = (io: any) => {
       socket.join(roomId);
       // sendMessage('joined', true);
       console.log('User ' + userId + ' joined room ' + roomId + '.');
-      socket.emit('trackId', {trackId: rooms[roomId].trackId});
+      socket.emit('audioPath', {audioPath: rooms[roomId].audioPath});
       socket.emit('joinRoom', {
         state: rooms[roomId].state,
         onlyHost: rooms[roomId].onlyHost,

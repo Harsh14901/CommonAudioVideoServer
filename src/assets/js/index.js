@@ -66,10 +66,11 @@ socket.on('userId', data => {
   userId = data.userId;
 });
 
-socket.on('trackId', data => {
+socket.on('audioPath', data => {
   console.log(data);
-  trackId = data.trackId;
-  audio.src = 'http://localhost:5000/api/listen/' + trackId;
+  audioPath = data.audioPath;
+  audio.src = `http://localhost:5000/api/listen?path=${audioPath}`;
+    console.log();
 });
 
 socket.on('sendMessage', msg => {

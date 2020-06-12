@@ -53,10 +53,12 @@ const setPlaybackTime = data => {
   lastRecievedAt = new Date().getTime() / 1000;
   audio.currentTime = data.position + lastRecievedAt - data.last_updated;
 };
-
-socket.emit('joinRoom', {
-  roomId: roomId,
+document.getElementById('joinRoom').addEventListener('click', () => {
+  socket.emit('joinRoom', {
+    roomId: roomId,
+  });
 });
+
 socket.on('joinRoom', data => {
   console.log('Present state is: ');
   console.log(data);

@@ -35,6 +35,12 @@ app.use('/healthz', (_0: Request, res: Response) => {
   res.send('Ok, Healthy!');
 });
 
+app.get('/time', (req, res) => {
+  return res.status(200).json({
+    time: new Date().getTime(),
+  });
+});
+
 app.get('/client/stream/', (req: Request, res: Response) => {
   const filepath = path.join(__dirname, '/../../src/views/pages/index.ejs');
   console.log(filepath, 'serving');

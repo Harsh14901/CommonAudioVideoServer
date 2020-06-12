@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
+console.log(addr);
 const getParams = function (url) {
   const params = {};
   const parser = document.createElement('a');
@@ -13,7 +14,7 @@ const getParams = function (url) {
   return params;
 };
 
-const socket = io('http://localhost:5000/');
+const socket = io(`http://${addr}:5000/`);
 
 const maxError = 0.5;
 const eventTimeDiff = 1;
@@ -71,7 +72,7 @@ socket.on('userId', data => {
 socket.on('audioPath', data => {
   console.log(data);
   audioPath = data.audioPath;
-  audio.src = `http://localhost:5000/api/listen?path=${audioPath}`;
+  audio.src = `http://${addr}:5000/api/listen?path=${audioPath}`;
   console.log();
 });
 

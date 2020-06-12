@@ -1,6 +1,12 @@
 <html>
+    <head>
+        <script>
+            var addr = '<%= addr  %>';
+        </script>
+    </head>
 <body>
-    <script src="http://localhost:5000/socket.io/socket.io.js"></script>
+    <script src="http://<%= addr  %>:5000/socket.io/socket.io.js"></script>
+    <p><%= addr  %></p>
     <audio controls id="audiosrc" src="">
     </audio>
     <style>

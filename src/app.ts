@@ -5,6 +5,7 @@ import {Request, Response, NextFunction} from 'express';
 import routes from './routes';
 import logRequest from './middlewares/logRequest';
 import * as path from 'path';
+import * as os from 'os';
 
 // Create Express server.
 const app = express();
@@ -17,7 +18,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(logRequest);
 app.use(express.static(path.join(__dirname, '/../../src/assets')));
 
-// app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '../../src/views'));
+app.set('view engine', 'ejs');
 
 app.get('/', (_, res) => {
   res.json({
@@ -34,9 +36,13 @@ app.use('/healthz', (_0: Request, res: Response) => {
 });
 
 app.get('/client/stream/', (req: Request, res: Response) => {
-  const filepath = path.join(__dirname, '/../../src/assets/pages/index.html');
+  const filepath = path.join(__dirname, '/../../src/views/pages/index.ejs');
   console.log(filepath, 'serving');
-  res.sendFile(filepath);
+  const networkInterfaces: any = os.networkInterfaces();
+  console.log(networkInterfaces['wlp3s0']);
+  const addr: string = networkInterfaces['wlp3s0'][0]['address'];
+  console.log(addr);
+  res.render('index', {addr: addr});
 });
 
 app.use((_req: Request, _res: Response, next: NextFunction): void => {

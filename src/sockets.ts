@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as socketio from 'socket.io';
-import { existsSync } from 'fs';
+import {existsSync} from 'fs';
 // import * as lodash from 'lodash';
 // import Track from './models/track';
 

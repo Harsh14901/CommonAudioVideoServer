@@ -23,7 +23,7 @@ let onlyHost = false;
 
 let userId = '';
 const roomId = getParams(location.href).roomId;
-let trackId = '';
+// let trackId = '';
 
 const audio = document.getElementById('audiosrc');
 let lastState = {};
@@ -53,7 +53,9 @@ const setPlaybackTime = data => {
   audio.currentTime = data.position + lastRecievedAt - data.last_updated;
 };
 
-socket.emit('joinRoom', {roomId: roomId});
+socket.emit('joinRoom', {
+  roomId: roomId,
+});
 socket.on('joinRoom', data => {
   console.log('Present state is: ');
   console.log(data);
@@ -70,7 +72,7 @@ socket.on('audioPath', data => {
   console.log(data);
   audioPath = data.audioPath;
   audio.src = `http://localhost:5000/api/listen?path=${audioPath}`;
-    console.log();
+  console.log();
 });
 
 socket.on('sendMessage', msg => {

@@ -1,4 +1,3 @@
-import * as GridFs from 'gridfs-stream';
 import {Request, Response, NextFunction} from 'express';
 // import mongoose from '../db';
 // import Track from '../models/track';
@@ -8,8 +7,7 @@ import {Request, Response, NextFunction} from 'express';
 // import * as crypto from 'crypto';
 // import * as path from 'path';
 // import { getEnabledCategories } from 'trace_events';
-import { statSync, createReadStream } from 'fs';
-
+import {statSync, createReadStream} from 'fs';
 
 // export const listen = async (
 //   req: Request,
@@ -65,25 +63,23 @@ import { statSync, createReadStream } from 'fs';
 //   }
 // };
 
-export const listen_local =  async (
+export const listen_local = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  try{
-    var filePath:string = req.query.path as string;
-    var stat = statSync(filePath);    // TODO input validation.. **
+  try {
+    const filePath: string = req.query.path as string;
+    const stat = statSync(filePath); // TODO input validation.. **
 
     const fileSize = stat.size;
     const range = req.headers.range;
     if (range) {
-      const parts = range.replace(/bytes=/, "").split("-");
+      const parts = range.replace(/bytes=/, '').split('-');
       const start = parseInt(parts[0], 10);
-      const end = parts[1] 
-        ? parseInt(parts[1], 10)
-        : fileSize - 1;
-      const chunksize = (end - start) + 1;
-      const readStream = createReadStream(filePath, { start, end });
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunksize = end - start + 1;
+      const readStream = createReadStream(filePath, {start, end});
       const head = {
         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
         'Accept-Ranges': 'bytes',
@@ -100,11 +96,10 @@ export const listen_local =  async (
       res.writeHead(200, head);
       createReadStream(filePath).pipe(res);
     }
-  }catch(err){
+  } catch (err) {
     return next(err);
   }
 };
-
 
 // export const upload = async (
 //   req: Request,

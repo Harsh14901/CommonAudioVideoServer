@@ -16,6 +16,10 @@ interface MESSAGE {
   timestamp: Date;
   userId: string;
 }
+interface TRACKSTATE {
+  state: STATE;
+  audioPath: string;
+}
 
 interface STATE {
   title: string;
@@ -31,7 +35,8 @@ interface ROOM {
   userIds: string[];
   ownerId: string;
   state: STATE;
-  audioPath: string;
+  audioPaths: string[];
+  currentAudioPath: string;
   onlyHost: boolean;
 }
 
@@ -71,9 +76,6 @@ const validateBoolean = (boolean: boolean) => {
   return typeof boolean === 'boolean';
 };
 
-const validateAudioId = (audioId: string) => {
-  return typeof audioId === 'string';
-};
 const socket = (io: any) => {
   io.on('connection', (socket: socketio.Socket) => {
     let userId: string = makeId();
@@ -107,28 +109,12 @@ const socket = (io: any) => {
       }
     };
 
-    socket.on('createRoom', async (data: Record<string, string | boolean>) => {
+    socket.on('createRoom', async (data: Record<string, boolean>) => {
       if (!Object.prototype.hasOwnProperty.call(users, userId)) {
         //inform
         console.log('The socket received a message after it was disconnected.');
         return;
       }
-
-      if (!validateAudioId(data.title as string)) {
-        //inform
-        console.log(
-          `User ${userId} attempted to create room with invalid audio ${data.title}.`
-        );
-        return;
-      }
-
-      if (!(await validateAudioPath(data.audioPath as string))) {
-        console.log(
-          `User ${userId} attempted to create room with invalid audioPath ${data.audioPath}.`
-        );
-        return;
-      }
-
       if (users[userId].roomId !== '') {
         //inform
         console.log('User already in a room.');
@@ -143,22 +129,22 @@ const socket = (io: any) => {
         is_playing: false,
         position: 0,
         last_updated: 0,
-        title: data.title as string,
+        title: '',
         duration: 0,
       };
       const room = {
         id: roomId,
         messages: [],
+        audioPaths: [],
         state: initial_state,
         userIds: [userId],
         ownerId: userId,
-        audioPath: data.audioPath as string,
+        currentAudioPath: '',
         onlyHost: data.onlyHost as boolean,
       };
       users[userId].roomId = roomId;
       rooms[room.id] = room;
       socket.join(roomId);
-      // sendMessage('created the room:', true);
       console.log('User ' + userId + ' created room ' + users[userId].roomId);
       io.in(roomId).emit('createRoom', {roomId: roomId});
     });
@@ -195,8 +181,41 @@ const socket = (io: any) => {
       socket.join(roomId);
       // sendMessage('joined', true);
       console.log('User ' + userId + ' joined room ' + roomId + '.');
-      socket.emit('audioPath', {audioPath: rooms[roomId].audioPath});
+      socket.emit('audioPath', {audioPath: rooms[roomId].currentAudioPath});
       socket.emit('joinRoom', {
+        state: rooms[roomId].state,
+        onlyHost: rooms[roomId].onlyHost,
+      });
+    });
+
+    socket.on('addTrack', async (data: Record<string, string>) => {
+      if (!(await validateAudioPath(data.audioPath as string))) {
+        console.log(
+          `User ${userId} attempted to add invalid trackId ${data.audioPath}.`
+        );
+        return;
+      }
+      rooms[users[userId].roomId].audioPaths.push(data.audioPath);
+      if (rooms[users[userId].roomId].audioPaths.length === 1) {
+        rooms[users[userId].roomId].currentAudioPath = data.audioPath;
+        socket.to(users[userId].roomId).emit('audioPath', {
+          trackId: rooms[users[userId].roomId].currentAudioPath,
+        });
+      }
+    });
+
+    socket.on('changeTrack', (data: TRACKSTATE) => {
+      if (!rooms[users[userId].roomId].audioPaths.includes(data.audioPath)) {
+        console.log('AudioPath invalid');
+        return;
+      }
+      const roomId = users[userId].roomId;
+      rooms[roomId].currentAudioPath = data.audioPath;
+      rooms[roomId].state = data.state;
+      socket.to(users[userId].roomId).emit('audioPath', {
+        audioPath: rooms[users[userId].roomId].currentAudioPath,
+      });
+      socket.to(roomId).emit('joinRoom', {
         state: rooms[roomId].state,
         onlyHost: rooms[roomId].onlyHost,
       });

@@ -188,6 +188,28 @@ const socket = (io: any) => {
       });
     });
 
+    socket.on('makeMeHost', async (data: Record<string,string>) => {
+      const roomId = data.roomId;
+      if (!Object.prototype.hasOwnProperty.call(users, userId)) {
+        //inform
+        console.log('The socket received a message after it was disconnected.');
+        return;
+      }
+
+      if (
+        !validateId(roomId) ||
+        !Object.prototype.hasOwnProperty.call(rooms, roomId)
+      ) {
+        //inform
+        console.log(
+          `User ${userId} attempted to become host of a nonexistent room ${roomId}.`
+        );
+        return;
+      }
+      rooms[roomId].ownerId = userId;
+      socket.emit('roomDetails',rooms[roomId]);
+    });
+
     socket.on('addTrack', async (data: Record<string, string>) => {
       if (!(await validateAudioPath(data.audioPath as string))) {
         console.log(
@@ -196,6 +218,9 @@ const socket = (io: any) => {
         return;
       }
       rooms[users[userId].roomId].audioPaths.push(data.audioPath);
+      users[rooms[users[userId].roomId].ownerId].socket.emit('addTrack',{
+        'audioPath': data.audioPath,
+      })
       if (rooms[users[userId].roomId].audioPaths.length === 1) {
         rooms[users[userId].roomId].currentAudioPath = data.audioPath;
         socket.to(users[userId].roomId).emit('audioPath', {

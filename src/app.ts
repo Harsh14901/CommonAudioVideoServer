@@ -41,15 +41,13 @@ app.get('/time', (req, res) => {
   });
 });
 
-app.get('/client/stream/', (req: Request, res: Response) => {
-  const filepath = path.join(__dirname, '/../../src/views/pages/index.ejs');
-  console.log(filepath, 'serving');
-  const networkInterfaces: any = os.networkInterfaces();
-  console.log(networkInterfaces['wlp3s0']);
-  const addr: string = networkInterfaces['wlp3s0'][0]['address'];
-  console.log(addr);
-  res.render('index', {addr: addr});
+app.get('/client/stream/', (_0: Request, res: Response) => {
+  res.render('index');
 });
+
+app.get('/host/stream/',(_0: Request, res: Response) => {
+  res.render('host');
+})
 
 app.use((_req: Request, _res: Response, next: NextFunction): void => {
   const err = new Error('Page Not Found');
@@ -69,4 +67,5 @@ app.use(
   }
 );
 // console.log(__dirname)
+
 export default app;

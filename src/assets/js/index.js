@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
+var addr = location.host
 console.log(addr);
 const getParams = function (url) {
   const params = {};
@@ -14,7 +15,7 @@ const getParams = function (url) {
   return params;
 };
 
-const socket = io(`http://${addr}:5000/`);
+const socket = io(`http://${addr}/`);
 
 const maxError = 0.5;
 const eventTimeDiff = 1;
@@ -29,7 +30,7 @@ const roomId = getParams(location.href).roomId;
 
 const getNetworkOffset = async () => {
   const reqStart = new Date().getTime();
-  const response = await axios.get(`http://${addr}:5000/time`);
+  const response = await axios.get(`http://${addr}/time`);
   const time = response.data.time;
   const reqEnd = new Date().getTime();
   networkOffset = ((reqEnd + reqStart) / 2 - time) / 1000;
@@ -91,7 +92,7 @@ socket.on('userId', data => {
 socket.on('audioPath', data => {
   console.log(data);
   audioPath = data.audioPath;
-  audio.src = `http://${addr}:5000/api/listen?path=${audioPath}`;
+  audio.src = `http://${addr}/api/listen?path=${audioPath}`;
   console.log();
 });
 

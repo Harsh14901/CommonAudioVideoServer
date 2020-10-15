@@ -84,14 +84,14 @@ export const listen_local = async (
         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
         'Accept-Ranges': 'bytes',
         'Content-Length': chunksize,
-        'Content-Type': 'audio/mpeg',
+        'Content-Type': 'video/x-matroska',
       };
       res.writeHead(206, head);
       readStream.pipe(res);
     } else {
       const head = {
         'Content-Length': fileSize,
-        'Content-Type': 'audio/mpeg',
+        'Content-Type': 'video/x-matroska',
       };
       res.writeHead(200, head);
       createReadStream(filePath).pipe(res);

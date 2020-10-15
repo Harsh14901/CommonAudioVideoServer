@@ -65,7 +65,7 @@ setInterval(() => {
 
 const setPlaybackTime = data => {
   lastRecievedAt = new Date().getTime() / 1000;
-  console.log('Recieved data at' + lastRecievedAt);
+  console.log('Recieved data at ' + lastRecievedAt);
   audio.currentTime =
     data.position + lastRecievedAt - data.last_updated - networkOffset;
   console.log('setting current time to ' + audio.currentTime);
@@ -145,7 +145,7 @@ socket.on('seek', data => {
 audio.addEventListener('play', event => {
   if (disableEventListener || onlyHost) return;
   console.log('Play event detected');
-  lastState.last_updated = new Date().getTime() / 1000;
+  lastState.last_updated = new Date().getTime() / 1000 - networkOffset;
   lastState.position = audio.currentTime;
   lastState.is_playing = true;
   socket.emit('play', lastState);
@@ -153,7 +153,7 @@ audio.addEventListener('play', event => {
 audio.addEventListener('pause', event => {
   if (disableEventListener || onlyHost) return;
   console.log('Pause event detected');
-  lastState.last_updated = new Date().getTime() / 1000;
+  lastState.last_updated = new Date().getTime() / 1000 - networkOffset;
   lastState.position = audio.currentTime;
   lastState.is_playing = false;
   socket.emit('pause', lastState);
@@ -162,7 +162,7 @@ audio.addEventListener('seeked', event => {
   if (disableEventListener || !audio.paused || onlyHost) return;
   console.log('audio.paused is :' + audio.paused);
   console.log('Seek event detected');
-  lastState.last_updated = new Date().getTime() / 1000;
+  lastState.last_updated = new Date().getTime() / 1000 - networkOffset;
   lastState.position = audio.currentTime;
   console.log(lastState);
   socket.emit('seek', lastState);

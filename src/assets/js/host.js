@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-var addr = location.host
+const addr = location.host;
 console.log(addr);
 const getParams = function (url) {
   const params = {};
@@ -15,13 +15,31 @@ const getParams = function (url) {
   return params;
 };
 
-const ogg2mkv = (file) => {
-    return file.substr(0,file.length-3) + 'mkv';
-}
+let current_video_index = 0;
+
+const search = vidioFile => {
+  videoPaths.forEach(file => {
+    if (file === vidioFile) return file;
+  });
+};
+
+const ogg2mkv = file => {
+  return file.substr(0, file.length - 3) + 'mkv';
+};
+
+const mkv2ogg = file => {
+  return file.substr(0, file.length - 3) + 'ogg';
+};
+
+const url_from_file = filePath => {
+  return `http://${addr}/api/listen?path=${encodeURIComponent(
+    ogg2mkv(filePath)
+  )}`;
+};
 
 const socket = io(`http://${addr}/`);
 
-const maxError = 0.5;
+const maxError = 0.4;
 const eventTimeDiff = 1;
 const interval = 1000;
 let networkOffset = 0;
@@ -80,28 +98,49 @@ document.getElementById('startParty').addEventListener('click', () => {
   socket.emit('joinRoom', {
     roomId: roomId,
   });
-  socket.emit('makeMeHost',{
-      roomId: roomId,
-  })
+  socket.emit('makeMeHost', {
+    roomId: roomId,
+  });
 });
-socket.on('roomDetails',data => {
-    console.log("Recieved room details");
-    console.log(data);
-    lastState = data.state;
-    onlyHost = data.onlyHost;
-    data.audioPaths.forEach(p => {
-        videoPaths.push(ogg2mkv(p));
-    })
-    video.src = `http://${addr}/api/listen?path=${encodeURIComponent(ogg2mkv(data.currentAudioPath))}`;
 
-})
+const getFileNameFromPath = path => {
+  let fileName = path.substring(path.lastIndexOf('\\') + 1);
+  if (fileName.endsWith('ogg'))
+    fileName = fileName.substring(0, fileName.length - 3);
+  return fileName;
+};
 
-socket.on('addTrack',data => {
-    videoPaths.push(ogg2mkv(data.audioPath));
-})
+socket.on('roomDetails', data => {
+  console.log('Recieved room details');
+  $('#startParty')
+    .text('success')
+    .addClass('btn-success')
+    .removeClass('btn-outline-success');
+  const fileName = getFileNameFromPath(data.currentAudioPath);
+  setTimeout(() => {
+    $('#startParty').hide();
+    $('#track-info')
+      .show()
+      .find('span')
+      .text(`${fileName} - (${current_video_index})`);
+  }, 2000);
+  console.log(data);
+  lastState = data.state;
+  onlyHost = data.onlyHost;
+  data.audioPaths.forEach(p => {
+    videoPaths.push(ogg2mkv(p));
+  });
+  current_video_index = data.audioPaths.indexOf(data.currentAudioPath);
+  console.log(current_video_index);
+  video.src = url_from_file(data.currentAudioPath);
+});
+
+socket.on('addTrack', data => {
+  videoPaths.push(ogg2mkv(data.audioPath));
+});
 socket.on('joinRoom', data => {
   console.log('Present state is: ');
-  console.log(data);
+  console.log(data.state);
   lastState = data.state;
   onlyHost = data.onlyHost;
 });
@@ -122,6 +161,7 @@ socket.on('pause', data => {
   console.log('Pausing playback');
   video.currentTime = data.position;
   video.pause();
+  console.log(data);
   lastState = data;
   setTimeout(() => {
     disableEventListener = false;
@@ -137,6 +177,7 @@ socket.on('play', data => {
 
   setPlaybackTime(data);
   video.play();
+  console.log(data);
   lastState = data;
 
   setTimeout(() => {
@@ -156,6 +197,45 @@ socket.on('seek', data => {
   setTimeout(() => {
     disableEventListener = false;
   }, interval);
+});
+
+$('#back').on('click', () => {
+  console.log('back clicked');
+  if (current_video_index === 0) return;
+
+  video.src = url_from_file(videoPaths[current_video_index - 1]);
+  const fileName = getFileNameFromPath(videoPaths[current_video_index - 1]);
+  $('#track-name').text(`${fileName} - (${current_video_index - 1})`);
+
+  lastState.last_updated = new Date().getTime() / 1000;
+  lastState.expectedPosition = 0;
+  lastState.is_playing = false;
+  video.pause();
+
+  socket.emit('changeTrack', {
+    audioPath: mkv2ogg(videoPaths[current_video_index - 1]),
+    state: lastState,
+  });
+  current_video_index--;
+});
+
+$('#next').on('click', () => {
+  console.log('next clicked');
+  if (current_video_index === videoPaths.length - 1) return;
+
+  video.src = url_from_file(videoPaths[current_video_index + 1]);
+  const fileName = getFileNameFromPath(videoPaths[current_video_index + 1]);
+  $('#track-name').text(`${fileName} - (${current_video_index + 1})`);
+
+  lastState.last_updated = new Date().getTime() / 1000;
+  lastState.position = 0;
+  lastState.is_playing = false;
+  video.pause();
+  socket.emit('changeTrack', {
+    audioPath: mkv2ogg(videoPaths[current_video_index + 1]),
+    state: lastState,
+  });
+  current_video_index++;
 });
 
 video.addEventListener('play', event => {

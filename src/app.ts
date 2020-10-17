@@ -16,6 +16,17 @@ app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(logRequest);
+
+app.use(
+  '/js',
+  express.static(__dirname + '/../../node_modules/bootstrap/dist/js')
+);
+app.use('/js', express.static(__dirname + '/../../node_modules/jquery/dist'));
+app.use(
+  '/css',
+  express.static(__dirname + '/../../node_modules/bootstrap/dist/css')
+);
+
 app.use(express.static(path.join(__dirname, '/../../src/assets')));
 
 app.set('views', path.join(__dirname, '../../src/views'));
@@ -45,9 +56,9 @@ app.get('/client/stream/', (_0: Request, res: Response) => {
   res.render('index');
 });
 
-app.get('/host/stream/',(_0: Request, res: Response) => {
+app.get('/host/stream/', (_0: Request, res: Response) => {
   res.render('host');
-})
+});
 
 app.use((_req: Request, _res: Response, next: NextFunction): void => {
   const err = new Error('Page Not Found');

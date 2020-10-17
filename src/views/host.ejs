@@ -1,33 +1,57 @@
 <html>
-<body>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="/socket.io/socket.io.js"></script>
-    <video controls id="videosrc" src="" type="video/x-matroska">
-    </video>
-    <button id="startParty">Click here to join the party!!</button>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="col">
+            <div class="row h-75">
+                <video controls id="videosrc" src="" class="centerBlock" type="video/x-matroska"></video>
+            </div>
+            <div id="controls" class="row align-items-center">
+                <div class="col-sm-4"><button id='back' class="centerBlock">back</button></div>
+                <div class="col-sm-4">
+                    <button id="startParty" class="centerBlock btn btn-outline-success">Click here to join the
+                        party!!</button>
+                    <p id="track-info" style="display: none;" class="centerBlock btn-outline-success">Now playing <span id="track-name">omg</span></p>
+                </div>
+                <div class="col-sm-4"><button id="next" class="centerBlock">next</button></div>
+            </div>
+        </div>
+    </div>
+
     <style>
-        #startParty {
-            display: block;
-            position: relative;
-            margin: auto;
-            top: 50%;
+        #controls {
+            margin-top: 30px;
         }
-        #videosrc {
-            display: block;
-            position: relative;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+
+        .centerBlock {
+            display: table;
+            margin: auto;
+        }
+
+        @media screen and (max-width:800px) {
+            #videosrc {
+                width: 100%;
+            }
         }
 
         body {
-            background-image: url("https://images.unsplash.com/photo-1506269351850-0428eaed2193?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80");
+            background-color: black;
             background-position: center center;
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
     </style>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="/js/host.js"></script>
 </body>
 

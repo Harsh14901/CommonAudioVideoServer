@@ -188,7 +188,7 @@ const socket = (io: any) => {
       });
     });
 
-    socket.on('makeMeHost', async (data: Record<string,string>) => {
+    socket.on('makeMeHost', async (data: Record<string, string>) => {
       const roomId = data.roomId;
       if (!Object.prototype.hasOwnProperty.call(users, userId)) {
         //inform
@@ -207,7 +207,7 @@ const socket = (io: any) => {
         return;
       }
       rooms[roomId].ownerId = userId;
-      socket.emit('roomDetails',rooms[roomId]);
+      socket.emit('roomDetails', rooms[roomId]);
     });
 
     socket.on('addTrack', async (data: Record<string, string>) => {
@@ -218,9 +218,9 @@ const socket = (io: any) => {
         return;
       }
       rooms[users[userId].roomId].audioPaths.push(data.audioPath);
-      users[rooms[users[userId].roomId].ownerId].socket.emit('addTrack',{
-        'audioPath': data.audioPath,
-      })
+      users[rooms[users[userId].roomId].ownerId].socket.emit('addTrack', {
+        audioPath: data.audioPath,
+      });
       if (rooms[users[userId].roomId].audioPaths.length === 1) {
         rooms[users[userId].roomId].currentAudioPath = data.audioPath;
         socket.to(users[userId].roomId).emit('audioPath', {

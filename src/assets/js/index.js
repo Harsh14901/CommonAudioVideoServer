@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-var addr = location.host
+const addr = location.host;
 console.log(addr);
 const getParams = function (url) {
   const params = {};
@@ -93,6 +93,10 @@ socket.on('audioPath', data => {
   console.log(data);
   audioPath = data.audioPath;
   audio.src = `http://${addr}/api/listen?path=${audioPath}`;
+  $('#joinRoom')
+    .text('success')
+    .addClass('btn-success')
+    .removeClass('btn-outline-success');
   console.log();
 });
 

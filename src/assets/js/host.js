@@ -241,7 +241,7 @@ $('#next').on('click', () => {
 video.addEventListener('play', event => {
   if (disableEventListener || onlyHost) return;
   console.log('Play event detected');
-  lastState.last_updated = new Date().getTime() / 1000;
+  lastState.last_updated = new Date().getTime() / 1000 - networkOffset;
   lastState.position = video.currentTime;
   lastState.is_playing = true;
   socket.emit('play', lastState);
@@ -249,7 +249,7 @@ video.addEventListener('play', event => {
 video.addEventListener('pause', event => {
   if (disableEventListener || onlyHost) return;
   console.log('Pause event detected');
-  lastState.last_updated = new Date().getTime() / 1000;
+  lastState.last_updated = new Date().getTime() / 1000 - networkOffset;
   lastState.position = video.currentTime;
   lastState.is_playing = false;
   socket.emit('pause', lastState);
@@ -258,7 +258,7 @@ video.addEventListener('seeked', event => {
   if (disableEventListener || !video.paused || onlyHost) return;
   console.log('audio.paused is :' + video.paused);
   console.log('Seek event detected');
-  lastState.last_updated = new Date().getTime() / 1000;
+  lastState.last_updated = new Date().getTime() / 1000 - networkOffset;
   lastState.position = video.currentTime;
   console.log(lastState);
   socket.emit('seek', lastState);

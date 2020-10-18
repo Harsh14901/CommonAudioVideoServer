@@ -17,7 +17,7 @@ const getParams = function (url) {
 
 const socket = io(`http://${addr}/`);
 
-const maxError = 0.5;
+const maxError = 0.4;
 const eventTimeDiff = 1;
 const interval = 1000;
 let networkOffset = 0;
@@ -150,7 +150,7 @@ socket.on('seek', data => {
 audio.addEventListener('play', event => {
   if (disableEventListener || onlyHost) return;
   console.log('Play event detected');
-  lastState.last_updated = new Date().getTime() / 1000;
+  lastState.last_updated = new Date().getTime() / 1000 - networkOffset;
   lastState.position = audio.currentTime;
   lastState.is_playing = true;
   socket.emit('play', lastState);
@@ -158,7 +158,7 @@ audio.addEventListener('play', event => {
 audio.addEventListener('pause', event => {
   if (disableEventListener || onlyHost) return;
   console.log('Pause event detected');
-  lastState.last_updated = new Date().getTime() / 1000;
+  lastState.last_updated = new Date().getTime() / 1000 - networkOffset;
   lastState.position = audio.currentTime;
   lastState.is_playing = false;
   socket.emit('pause', lastState);
@@ -167,7 +167,7 @@ audio.addEventListener('seeked', event => {
   if (disableEventListener || !audio.paused || onlyHost) return;
   console.log('audio.paused is :' + audio.paused);
   console.log('Seek event detected');
-  lastState.last_updated = new Date().getTime() / 1000;
+  lastState.last_updated = new Date().getTime() / 1000 - networkOffset;
   lastState.position = audio.currentTime;
   console.log(lastState);
   socket.emit('seek', lastState);

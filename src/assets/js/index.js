@@ -66,7 +66,7 @@ setInterval(() => {
 
 const setPlaybackTime = data => {
   lastRecievedAt = new Date().getTime() / 1000;
-  console.log('Recieved data at' + lastRecievedAt);
+  console.log('Recieved data at ' + lastRecievedAt);
   audio.currentTime =
     data.position + lastRecievedAt - data.last_updated - networkOffset;
   console.log('setting current time to ' + audio.currentTime);

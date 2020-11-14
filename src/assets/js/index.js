@@ -50,13 +50,14 @@ setInterval(() => {
     ? new Date().getTime() / 1000 -
       lastState.last_updated +
       lastState.position -
-      networkOffset
+      networkOffset +
+      0.2
     : lastState.position;
   console.log(audio.currentTime - expectedPosition);
   if (Math.abs(audio.currentTime - expectedPosition) >= maxError) {
     console.log('Syncing now...');
     disableEventListener = true;
-    audio.currentTime = expectedPosition + 0.2;
+    audio.currentTime = expectedPosition;
     setTimeout(() => {
       disableEventListener = false;
     }, interval);

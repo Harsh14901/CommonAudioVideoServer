@@ -17,7 +17,7 @@ const getParams = function (url) {
 
 const socket = io(`http://${addr}/`);
 
-const maxError = 0.4;
+const maxError = 0.15;
 const eventTimeDiff = 1;
 const interval = 1000;
 let networkOffset = 0;
@@ -52,10 +52,11 @@ setInterval(() => {
       lastState.position -
       networkOffset
     : lastState.position;
+  console.log(audio.currentTime - expectedPosition);
   if (Math.abs(audio.currentTime - expectedPosition) >= maxError) {
     console.log('Syncing now...');
     disableEventListener = true;
-    audio.currentTime = expectedPosition;
+    audio.currentTime = expectedPosition + 0.2;
     setTimeout(() => {
       disableEventListener = false;
     }, interval);

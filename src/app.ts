@@ -31,6 +31,7 @@ app.use(express.static(path.join(__dirname, '/../../src/assets')));
 
 app.set('views', path.join(__dirname, '../../src/views'));
 app.set('view engine', 'ejs');
+app.engine('ejs', require('ejs').__express);
 
 app.get('/', (_, res) => {
   res.json({

@@ -31,7 +31,10 @@ app.use(express.static(path.join(__dirname, '/../../src/assets')));
 
 app.set('views', path.join(__dirname, '../../src/views'));
 app.set('view engine', 'ejs');
+
+/* eslint-disable */
 app.engine('ejs', require('ejs').__express);
+/* eslint-enable */
 
 app.get('/', (_, res) => {
   res.json({

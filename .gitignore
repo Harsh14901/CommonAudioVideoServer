@@ -112,4 +112,4 @@ dist
 build/
 .vscode
 
-CAV_server
+CAV_server*

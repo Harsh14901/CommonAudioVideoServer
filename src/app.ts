@@ -17,16 +17,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(logRequest);
 
-app.use(
-  '/js',
-  express.static(__dirname + '/../../node_modules/bootstrap/dist/js')
-);
-app.use('/js', express.static(__dirname + '/../../node_modules/jquery/dist'));
-app.use(
-  '/css',
-  express.static(__dirname + '/../../node_modules/bootstrap/dist/css')
-);
-
 app.use(express.static(path.join(__dirname, '/../../src/assets')));
 
 app.set('views', path.join(__dirname, '../../src/views'));
